@@ -25,7 +25,7 @@ export default function Home() {
       <Text fontSize="xl">Estado de conexión: {status}</Text>
       {status === 'error' && (
         <Text color="red.500">
-          No se pudo conectar al backend. Verifica que esté corriendo en http://localhost:8000
+          No se pudo conectar al backend. Verifica que los contenedores estén en ejecución.
         </Text>
       )}
     </Box>

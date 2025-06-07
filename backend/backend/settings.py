@@ -41,6 +41,8 @@ REST_FRAMEWORK = {
 
 # CORS (Permitir conexión con el frontend)
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:80",
+    "http://localhost:8080",
     "http://localhost:5173",
 ]
 CORS_ALLOW_CREDENTIALS = True
@@ -52,7 +54,7 @@ DATABASES = {
         'NAME': 'ecommerce_db',
         'USER': 'postgres',
         'PASSWORD': 'Firestone01',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
