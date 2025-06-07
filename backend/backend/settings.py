@@ -52,7 +52,7 @@ DATABASES = {
         'NAME': 'ecommerce_db',
         'USER': 'postgres',
         'PASSWORD': 'Firestone01',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
