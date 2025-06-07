@@ -1,40 +1,72 @@
+// src/context/AuthContext.jsx
 import { createContext, useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/api';
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            // Aquí podrías hacer una petición para verificar el token
-            setUser({ token });
-        }
-        setLoading(false);
-    }, []);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setUser({
+          token,
+          userType: payload.user_type,  // Asegurarse de usar 'user_type'
+          userId: payload.user_id
+        });
+      } catch (error) {
+        console.error("Error decodificando token:", error);
+      }
+    }
+    setLoading(false);
+  }, []);
 
-    const login = async (credentials) => {
-        const response = await loginUser(credentials);
-        localStorage.setItem('token', response.data.access);
-        setUser({ token: response.data.access });
-    };
+  const login = async (credentials) => {
+    try {
+      const response = await loginUser(credentials);
+      localStorage.setItem('token', response.data.access);
+      
+      // Usar los datos del token decodificado
+      const payload = JSON.parse(atob(response.data.access.split('.')[1]));
+      
+      setUser({
+        token: response.data.access,
+        userType: payload.user_type,  // Usar 'user_type' del payload
+        userId: payload.user_id
+      });
+      
+      // Redirigir basado en userType
+      if (payload.user_type === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/shop');
+      }
+      
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
+  };
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        setUser(null);
-    };
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    navigate('/login');
+  };
 
-    return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
-            {children}
-        </AuthContext.Provider>
-    );
-};
+  return (
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
 
-// Al final del archivo añade:
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
